@@ -1,0 +1,18 @@
+library(KEGGREST)
+pathway=keggList("pathway","bta")
+pathway <- as.data.frame(pathway)
+pathway$pathID <- substr(rownames(pathway),6,nchar(rownames(pathway)[1]))
+gene=matrix(0,1,2)
+for (i in 1:nrow(pathway)) {
+  path=keggGet(pathway[i,"pathID"])
+  gene.info <- path[[1]]$GENE
+  genes <- unlist(lapply(gene.info,function(x) strsplit(x,";")))
+  gene.id <- genes[1:length(genes)%%3 == 1]
+  path=rep(path,length(gene.id))
+  gene_path=matrix(0,length(gene.id),2)
+  gene_path[,1]=gene.id
+  gene_path[,2]=path
+  gene=rbind(gene,gene.path)
+}
+gene=gene[,-1]
+write.table(gene, "gene_list.txt",row.names=FALSE,col.names=TRUE,quote = F) 
